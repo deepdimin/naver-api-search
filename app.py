@@ -30,11 +30,11 @@ import streamlit as st
 import os
 
 try:
-    NAVER_CLIENT_ID = st.secrets["NAVER_CLIENT_ID"]
-    NAVER_CLIENT_SECRET = st.secrets["NAVER_CLIENT_SECRET"]
+    NAVER_CLIENT_ID = st.secrets["hSKzvqsmCQQzk6vJQTDj"]
+    NAVER_CLIENT_SECRET = st.secrets["XxnMXsHPxL"]
 except Exception:
-    NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-    NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+    NAVER_CLIENT_ID = os.getenv("hSKzvqsmCQQzk6vJQTDj")
+    NAVER_CLIENT_SECRET = os.getenv("XxnMXsHPxL")
 
 # 값 검증 (없으면 앱 멈춤)
 if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:
