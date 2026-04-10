@@ -23,21 +23,28 @@ st.markdown("""
 """, unsafe_allow_html=True)  # HTML 커스텀 스타일 적용
 
 # 2. 프로필 및 환경 설정
-load_dotenv()  # .env 파일에서 환경 변수 로드 (로컬 개발용)
+# 2. 프로필 및 환경 설정 로드
+load_dotenv()  # .env 파일 로드 (로컬 개발용)
 
-# 네이버 API 인증 정보 로드 (Streamlit Secrets 우선, 그 다음 환경 변수 확인)
-try:
-    # 1. Streamlit Secrets 확인 (배포 환경)
-    if "NAVER_CLIENT_ID" in st.secrets:
-        NAVER_CLIENT_ID = st.secrets["NAVER_CLIENT_ID"]
-        NAVER_CLIENT_SECRET = st.secrets["NAVER_CLIENT_SECRET"]
-    else:
-        NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-        NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
-except Exception:
-    # 2. 로컬 환경 변수 확인 (.env 등)
-    NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
-    NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+def find_secret(key_name):
+    """
+    Streamlit Secrets와 환경 변수에서 키를 안전하게 탐색합니다.
+    """
+    # 1. Streamlit Secrets 확인 (대소문자 모두 체크)
+    try:
+        if key_name in st.secrets:
+            return st.secrets[key_name]
+        elif key_name.lower() in st.secrets:
+            return st.secrets[key_name.lower()]
+    except Exception:
+        pass
+    
+    # 2. 환경 변수(.env 등) 확인
+    return os.getenv(key_name)
+
+# API 인증 정보 할당
+NAVER_CLIENT_ID = find_secret("NAVER_CLIENT_ID")
+NAVER_CLIENT_SECRET = find_secret("NAVER_CLIENT_SECRET")
 
 # 3. 네이버 API 데이터 수집 함수 (실시간 처리용)
 def get_header():  # API 요청 헤더 생성 함수
@@ -108,7 +115,20 @@ else:  # 범위 선택이 완료되지 않은 경우
 st.sidebar.info("키워드나 기간을 변경하면 데이터가 자동으로 실시간 업데이트됩니다.")  # 실시간 업데이트 안내 문구 표시
 
 if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:  # API 키 존재 여부 확인
-    st.error("API 키가 설정되지 않았습니다. .env 파일을 확인해 주세요.")  # 오류 메시지 출력
+    st.error("⚠️ **네이버 API 인증 정보를 찾을 수 없습니다.**")  # 오류 메시지 출력
+    
+    # 디버깅 도움말 표시
+    with st.expander("🛠️ 시스템 진단 정보 (디버깅용)"):
+        st.write(f"- **인식된 Secrets 키 목록**: `{list(st.secrets.keys()) if st.secrets else '비어있음'}`")
+        st.write(f"- **환경 변수 (ID)**: `{'설정됨' if os.getenv('NAVER_CLIENT_ID') else '없음'}`")
+        st.write(f"- **환경 변수 (Secret)**: `{'설정됨' if os.getenv('NAVER_CLIENT_SECRET') else '없음'}`")
+        
+    st.info("""
+    **해결 방법:**
+    1. Streamlit Cloud의 **Settings > Secrets**에 키 값이 설정되어 있는지 확인해 주세요.
+    2. 키 이름이 `NAVER_CLIENT_ID`와 `NAVER_CLIENT_SECRET`으로 정확한지 확인해 주세요.
+    3. 로컬 실행 시에는 프로젝트 루트 폴더의 `.env` 파일을 확인해 주세요.
+    """)
     st.stop()  # 앱 실행 중단
 
 # 5. 데이터 수집 및 캐싱 (실시간 자동 업데이트)
