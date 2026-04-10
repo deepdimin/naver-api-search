@@ -26,12 +26,20 @@ st.markdown("""
 load_dotenv()  # .env 파일에서 환경 변수 로드 (로컬 개발용)
 
 # 네이버 API 인증 정보 로드 (Streamlit Secrets 우선, 그 다음 환경 변수 확인)
-if "NAVER_CLIENT_ID" in st.secrets:
-    NAVER_CLIENT_ID = st.secrets["NAVER_CLIENT_ID"]  # 스트림릿 클라우드의 Secrets에서 ID 가져오기
-    NAVER_CLIENT_SECRET = st.secrets["NAVER_CLIENT_SECRET"]  # 스트림릿 클라우드의 Secrets에서 시크릿 가져오기
-else:
-    NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")  # 로컬 환경 변수에서 ID 가져오기
-    NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")  # 로컬 환경 변수에서 시크릿 가져오기
+import streamlit as st
+import os
+
+try:
+    NAVER_CLIENT_ID = st.secrets["NAVER_CLIENT_ID"]
+    NAVER_CLIENT_SECRET = st.secrets["NAVER_CLIENT_SECRET"]
+except Exception:
+    NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
+    NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
+
+# 값 검증 (없으면 앱 멈춤)
+if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:
+    st.error("네이버 API 키가 설정되지 않았습니다.")
+    st.stop()
 
 # 3. 네이버 API 데이터 수집 함수 (실시간 처리용)
 def get_header():  # API 요청 헤더 생성 함수
