@@ -30,13 +30,12 @@ import streamlit as st
 import os
 
 try:
-    NAVER_CLIENT_ID = st.secrets["hSKzvqsmCQQzk6vJQTDj"]
-    NAVER_CLIENT_SECRET = st.secrets["XxnMXsHPxL"]
+    NAVER_CLIENT_ID = st.secrets["NAVER_CLIENT_ID"]
+    NAVER_CLIENT_SECRET = st.secrets["NAVER_CLIENT_SECRET"]
 except Exception:
-    NAVER_CLIENT_ID = os.getenv("hSKzvqsmCQQzk6vJQTDj")
-    NAVER_CLIENT_SECRET = os.getenv("XxnMXsHPxL")
+    NAVER_CLIENT_ID = os.getenv("NAVER_CLIENT_ID")
+    NAVER_CLIENT_SECRET = os.getenv("NAVER_CLIENT_SECRET")
 
-# 값 검증 (없으면 앱 멈춤)
 if not NAVER_CLIENT_ID or not NAVER_CLIENT_SECRET:
     st.error("네이버 API 키가 설정되지 않았습니다.")
     st.stop()
